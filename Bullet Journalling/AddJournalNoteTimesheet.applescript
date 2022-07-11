@@ -13,9 +13,15 @@
 -- on sortEvents(myList)
 
 -- get the name of the current running script
--- stolen from post by mklement0 on stackoverflow
--- https://stackoverflow.com/questions/5770384/how-find-the-file-name-of-an-executing-applescript
 -- getMyName()
+
+-- Split a string into an array with an arbitary delimiter
+-- SplitString(theString, theDelimiter)
+
+-- version 1.0 build 8 - Added ability to add notes to the timesheets. In notes on reminder format is delimited with ~. e.g 2 hours~reseated memory~reseated ram
+-- version 1.0 build 5 - Initial Release
+
+
 
 
 use AppleScript version "2.8"
@@ -93,15 +99,26 @@ on getCompletedReminders(theSearchStr, theCompletionStartDate as date, theComple
 	local theReminders
 	local theHtmlBody
 	local theSearchList
+	local SpentTime
+	local theNotes
+	local FirstIteration
+	local SecondIteration
+	local NotesArray
+	
 	
 	--	initialise variables
 	set aReminder to missing value
 	set theReminders to missing value
 	set theNewHtmlBody to missing value
 	set theSearchList to missing value
+	set SpentTime to missing value
+	set theNotes to missing value
+	set FirstIteration to missing value
+	set SecondIteration to missing value
+	set NotesArray to missing value
 	
-	-- start the Unnumbered List
-	set theNewHtmlBody to "<ul>" as text
+	-- start unnumbered list
+	set theNewHtmlBody to "<ul>"
 	-- Get the list of completed Reminders
 	tell application "Reminders"
 		--	set theNames to the name of every reminder
@@ -111,14 +128,44 @@ on getCompletedReminders(theSearchStr, theCompletionStartDate as date, theComple
 			set the theReminders to (every reminder whose completed is true and completion date ≥ theCompletionStartDate and completion date ≤ theCompletionEndDate)
 			-- with each reminder in theReinders 
 			repeat with aReminder in theReminders
+				set FirstIteration to true
+				set SecondIteration to true
+				set reminderText to ""
+				set reminderBody to ""
+				set NotesArray to ""
+				set theNotes to ""
+				
 				set reminderText to name of aReminder as string
 				set reminderBody to body of aReminder as text
-				if reminderBody is missing value then
-					set reminderBody to "no time recorded"
+				if reminderBody is "" then
+					set SpentTime to "<li> no time recorded"
+					set SpentTime to "<li>" & SpentTime
+				else
+					-- Split the Reminder Body into an array using ~ as the delimiter
+					set NotesArray to my SplitString(reminderBody, "~")
+					repeat with theItem in NotesArray
+						-- is this our first iteration through the array
+						if FirstIteration then
+							set SpentTime to "<li>" & theItem
+							set FirstIteration to false
+							-- is this the second iteration throught the array
+						else if SecondIteration then
+							-- setup the notes nested list
+							set theNotes to "<ul><li>" & theItem & "</li>"
+							set SecondIteration to false
+						else
+							-- append notes to Notes
+							set theNotes to theNotes & "<li>" & theItem & "</li>"
+						end if
+					end repeat
+				end if
+				if not SecondIteration then
+					-- close off the nested list
+					set theNotes to theNotes & "</ul>"
 				end if
 				-- If the reminderText is empty then it is useless putting it in here
-				if reminderText is not missing value or reminderText is not "" then
-					set theNewHtmlBody to theNewHtmlBody & "<li>" & reminderBody & ": " & reminderText & "</li>"
+				if reminderText is not "" then
+					set theNewHtmlBody to theNewHtmlBody & SpentTime & ": " & reminderText & theNotes & "</li>"
 				end if
 			end repeat
 		end tell
@@ -128,6 +175,24 @@ on getCompletedReminders(theSearchStr, theCompletionStartDate as date, theComple
 	-- return the HTML Body to the caller
 	return theNewHtmlBody
 end getCompletedReminders
+
+-- Stolen from https://erikslab.com/2007/08/31/applescript-how-to-split-a-string/
+-- Usage
+--
+-- set myArray to my theSplit(myTestString, "-")
+
+on SplitString(theString, theDelimiter)
+	-- save delimiters to restore old settings
+	set oldDelimiters to AppleScript's text item delimiters
+	-- set delimiters to delimiter to be used
+	set AppleScript's text item delimiters to theDelimiter
+	-- create the array
+	set theArray to every text item of theString
+	-- restore the old setting
+	set AppleScript's text item delimiters to oldDelimiters
+	-- return the result
+	return theArray
+end SplitString
 
 -- get the name of the current running script
 -- stolen from post by mklement0 on stackoverflow

@@ -1,6 +1,6 @@
 --
 --	Created by: Stephen Schwetz
---	Created on: 08/07/22
+--	Created on: 05/07/22
 --
 --	Copyright © 2022 Stephen Schwetz, All Rights Reserved
 --
@@ -8,13 +8,12 @@
 use AppleScript version "2.4" -- Yosemite (10.10) or later
 use scripting additions
 
+-- Versions
+--  
+-- 1.0 Build 0009: Fixed up Meeting list not containing all meetins
+-- 1.0 Build 0002: Initial release
+
 on run
-	--
-	--	Created by: Stephen Schwetz
-	--	Created on: 05/07/22
-	--
-	--	Copyright © 2022 Stephen Schwetz, All Rights Reserved
-	--
 	
 	-- Set the date string to YYYY-MM-DD
 	set {year:yr, month:mn, day:dy} to (current date)
@@ -85,6 +84,8 @@ on run
 		set the_calendars to {}
 		set every_calendar to every calendar
 		-- Now we have a list of calendars to check.
+		theGeneralEventsCounter is 0
+		theAllDayEventCounter is 0
 		repeat with an_item in the_calendar_list
 			set end of the_calendars to (first calendar whose name is an_item)
 		end repeat
@@ -93,7 +94,7 @@ on run
 			tell a_calendar
 				-- We need to get a list of events from the calendar, but we want to make it so that it will only return items that happen today
 				-- the due date is today is to capture all day events.
-				set the_events to (every event whose (start date ≥ today and start date ≤ tomorrow))
+				set the_events to (every event whose (start date ≥ today and end date ≤ tomorrow))
 				--
 				-- Here we sort the list of events for the day. If we don’t do this they won’t be chronological. iCal sorts them in creation order unless we run this little "sortEvents" routine.
 				--
@@ -111,19 +112,20 @@ on run
 					-- if this is an allday event we will add it to a seperate list so that we can put it at the top of the list with a different format
 					if allday_event then
 						if theAllDayEventCounter is 0 then
-							set theAllDayEvents to "<ul style=\"list-style-type:square;\">"
+							set theAllDayEvents to "<ul>"
+							set theAllDayEventCounter to 1
 						end if
-						theAllDayEventCounter is theAllDayEventCounter + 1
 						set theAllDayEvents to theAllDayEvents & "<li>" & the_summary & "</li>"
 					else
 						-- this is a standard event
 						-- if this is the first iteration of this type
 						if theGeneralEventsCounter is 0 then
 							-- Create and unumbered List
-							set theGeneralEvents to "<ul style=\"list-style-type:square;\">"
+							set theGeneralEvents to "<ul>"
+							set theGeneralEventsCounter to 1
 						end if
 						-- increment the counter
-						theGeneralEventsCounter is theGeneralEventsCounter + 1
+						
 						set theGeneralEvents to theGeneralEvents & "<li>" & the_start_time & " to " & the_end_time & " - " & the_summary & "</li>"
 					end if
 				end repeat

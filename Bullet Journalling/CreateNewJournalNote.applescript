@@ -5,23 +5,30 @@
 --	Copyright © 2022 Stephen Schwetz, All Rights Reserved
 --
 use script "CalendarLib EC" version "1.1.5"
---use script "DateTime"
+use myLib : script "DateTime"
 use AppleScript version "2.5"
 use scripting additions
 
 -- import scripts from library
+use script "CalendarLib EC" version "1.1.5"
+use myLib : script "DateTime"
 
+
+(*
 -- Versions
---  
--- 1.1 : Moved to use CalendarEC
--- 1.0 Build 0009: Fixed up Meeting list not containing all meetins
--- 1.0 Build 0002: Initial release
+1.1 Build 0007:	Fixed up All Day Meeting Formatting Error
+									Started Reformatting and Tidying Code for readability
+									Started moving functionality into handlers
+1.1 Build 1: 			Moved to use CalendarEC
+1.0 Build 0009: 	Fixed up Meeting list not containing all meetins
+1.0 Build 0002: 	Initial release
+*)
 
 on run
 	-- Use following Calendars 
 	set theCalendarsList to {"Calendar", "Family", "Stephen's Calendar", "Stephen and Emma"}
 	-- Set the date string to YYYY-MM-DD
-	set datestring to getISODate(current date)
+	set datestring to myLib's getISODate(current date)
 	-- set today to start at midnight
 	set today to current date
 	set time of today to 0
@@ -166,8 +173,8 @@ on getEventsHtmlList(theCalendarsList as list, theStartDate as date, theEndDate 
 		--get the portions of the info that we require
 		set anAllDayEvent to all_day of anEventInfo
 		set anEventSummary to event_summary of anEventInfo
-		set anEventStart to getTime(event_start_date of anEventInfo)
-		set anEventEnd to getTime(event_end_date of anEventInfo)
+		set anEventStart to myLib's getTime(event_start_date of anEventInfo)
+		set anEventEnd to myLib's getTime(event_end_date of anEventInfo)
 		
 		-- if this is an allday event we will add it to a seperate list so that we can put it at the top of the list with a different format
 		if anAllDayEvent then
@@ -178,7 +185,7 @@ on getEventsHtmlList(theCalendarsList as list, theStartDate as date, theEndDate 
 				set theAllDaylEventsInitialIterationDone to true
 			end if
 			-- add the event to the list of all day events
-			set theAllDayEventsHtml to theAllDayEventsHtml & "<li>All Day" & anEventSummary & "</li>"
+			set theAllDayEventsHtml to theAllDayEventsHtml & "<li>All Day - " & anEventSummary & "</li>"
 		else
 			-- this is a standard event
 			-- if this is the first iteration of this type
@@ -211,40 +218,7 @@ on getEventsHtmlList(theCalendarsList as list, theStartDate as date, theEndDate 
 	--	end try
 end getEventsHtmlList
 
---get the Time from a DateTime
-on getTime(theDateTime)
-	-- declare variables local
-	local theTime
-	-- initialise variable
-	set theTime to missing value
-	try
-		-- extract the time from theDate
-		set theTime to (time string of (theDateTime))
-		-- return theTime
-		return theTime
-	on error
-		return missing value
-	end try
-end getTime
 
-on getISODate(theDateTime)
-	-- declare variables local
-	local theISODate
-	-- initialise variables
-	set theISODate to missing value
-	try
-		set {year:yr, month:mn, day:dy} to (theDateTime)
-		set theISODate to (yr as text) & "-" & pad(mn as integer) & "-" & pad(dy)
-		return theISODate
-	on error
-		return missing value
-	end try
-end getISODate
-
---used to pad out missing zeros
-on pad(v)
-	return text -2 thru -1 of ((v + 100) as text)
-end pad
 
 (*
                     GNU GENERAL PUBLIC LICENSE

@@ -1,3 +1,5 @@
+*.app
+
 #Script Debugger AutoSave files
 *(Autosaved).*
 

@@ -1,5 +1,6 @@
 *.app
-
+#ignore compiled scripts
+*.scptd
 #Script Debugger AutoSave files
 *(Autosaved).*
 

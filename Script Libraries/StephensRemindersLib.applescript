@@ -9,6 +9,20 @@
 Handlers
 ========
 
+getReminderBodyFromID(theReminderListStr, theReminderID)
+action (verb) get a list of properties
+
+FUNCTION SYNTAX
+===============
+set theResult to getReminderFromID
+
+RESULT
+======
+list
+  [1] body
+  [2] id
+
+
 getReminderFromID(theReminderListStr, theReminderID)
 action (verb) get a list of properties
 
@@ -19,18 +33,8 @@ set theResult to getReminderFromID
 RESULT
 ======
 list
-  [1] allday due date
   [2] body
-  [3] completed
-  [4] completed date
-  [5] creation date
-  [6] due date
-  [7] flagged
   [8] id
-	[9] modification date
-	[10] name
-	[11] priority
-	[12] remind me date
 
 PARAMATERS
 ==========
@@ -88,7 +92,28 @@ use scripting additions
 use myLib : script "StephensLib"
 
 
-on getReminderfromID(theReminderListStr, theReminderID)
+on getReminderBodyFromID(theReminderListStr, theReminderID)
+	-- define variable
+	local theReminderValues
+	-- initialise variables
+	set the the ReminderValues to {}
+	try
+		tell application "Reminders"
+			set the aReminderList to list theReminderListStr
+			tell aReminderList
+				tell its reminder id theReminderID
+					copy its body to the end of ReminderValues
+					copy theReminderID to the end of ReminderValues
+				end tell
+			end tell
+		end tell
+		return ReminderValues
+	on error
+		return missing value
+	end try
+end getReminderBodyFromID
+
+on getReminderFromID(theReminderListStr, theReminderID)
 	-- define variable
 	local theReminderValues
 	-- initialise variables
@@ -113,10 +138,11 @@ on getReminderfromID(theReminderListStr, theReminderID)
 				end tell
 			end tell
 		end tell
+		return ReminderValues
 	on error
 		return missing value
 	end try
-end getReminderfromID
+end getReminderFromID
 
 -- get a list of reminder's objects ID
 on getRemindersID(theList as text, theCompletionStartDate as date, theCompletionEndDate as date, isCompleted as text)

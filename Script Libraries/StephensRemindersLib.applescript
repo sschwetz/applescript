@@ -127,20 +127,20 @@ on getRemindersID(theList as text, theCompletionStartDate as date, theCompletion
 	local theRemindersID
 	
 	--intialise variables
-	set theReminderList to missing value as list
-	set theReminders to missing value as list
+	set theReminderList to {}
+	set theReminders to {}
 	set aReminder to missing value
-	set theRemindersID to missing value as list
+	set theRemindersID to {}
 	
 	-- Get the list of completed Reminders
 	try
 		tell application "Reminders"
 			set theReminderList to list theList
 			tell theReminderList
-				if MarksLib's toLowerCase(isCompleted) is "completed" then
+				if myLib's toLowerCase(isCompleted) is "completed" then
 					-- get the completed reminders
 					set the theReminders to (every reminder whose completed is true and completion date ≥ theCompletionStartDate and completion date ≤ theCompletionEndDate)
-				else if MarksLib's toLowerCase(isCompleted) is "not completed" then
+				else if myLib's toLowerCase(isCompleted) is "not completed" then
 					-- get the incomplete reminders
 					set the theReminders to (every reminder whose completed is false)
 				else
@@ -148,12 +148,12 @@ on getRemindersID(theList as text, theCompletionStartDate as date, theCompletion
 					set the theReminders to (every reminder)
 				end if
 			end tell
+			-- for each reminder
+			repeat with aReminder in theReminders
+				-- copy the id of the reminder to the theRemindersID
+				copy the id of aReminder as text to the end of theRemindersID
+			end repeat
 		end tell
-		-- for each reminder
-		repeat with aReminder in theReminders
-			-- copy the id of the reminder to the theRemindersID
-			copy the id of aReminder to the end of theRemindersID
-		end repeat
 		return theRemindersID
 	on error
 		return missing value
@@ -164,7 +164,7 @@ on getRemindersHTML(theSearchList, theCompletionStartDate, theCompletionEndDate,
 	-- Declare variables
 	local aReminder
 	local theReminders
-	local theHtml
+	local theHTML
 	local theSpentTime
 	local theNotes
 	local theFirstIterationDone
@@ -185,7 +185,7 @@ on getRemindersHTML(theSearchList, theCompletionStartDate, theCompletionEndDate,
 	set theNotesHTML to missing value
 	
 	-- start unnumbered list
-	set theHtml to "<ul>"
+	set theHTML to "<ul>"
 	if isCompleted is true then
 		set theSearchType to "completed"
 	else
@@ -242,14 +242,14 @@ on getRemindersHTML(theSearchList, theCompletionStartDate, theCompletionEndDate,
 					end if
 				end if
 				-- close of the list item
-				set theHtml to theHtml & theSpentTime & ": " & aReminderName & theNotesHTML & "</li>"
+				set theHTML to theHTML & theSpentTime & ": " & aReminderName & theNotesHTML & "</li>"
 			end repeat
 		end tell
 	end tell
 	-- close the Unnumbered List
-	set theHtml to theHtml & "</ul><p>"
+	set theHTML to theHTML & "</ul><p>"
 	-- return the HTML Body to the caller
-	return theHtml
+	return theHTML
 end getRemindersHTML
 
 (*

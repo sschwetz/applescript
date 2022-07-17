@@ -9,7 +9,36 @@
 Handlers
 ========
 
-on getRemindersID(theList, theCompletionStartDate, theCompletionEndDate, isCompleted as string) 
+getReminderFromID(theReminderListStr, theReminderID)
+action (verb) get a list of properties
+
+FUNCTION SYNTAX
+===============
+set theResult to getReminderFromID
+
+RESULT
+======
+list
+  [1] allday due date
+  [2] body
+  [3] completed
+  [4] completed date
+  [5] creation date
+  [6] due date
+  [7] flagged
+  [8] id
+	[9] modification date
+	[10] name
+	[11] priority
+	[12] remind me date
+
+PARAMATERS
+==========
+	theReminderListStr as text¬
+		theReminderID as text
+
+
+getRemindersID(theList, theCompletionStartDate, theCompletionEndDate, isCompleted as string) 
 action (verb) Show all reminders or the given list
 
 FUNCTION SYNTAX

@@ -9,6 +9,48 @@
 Handlers
 ========
 
+on doCompleteReminderFromID(theReminderListStr, theReminderID)
+action (verb) complete a reminder given its ID
+
+FUNCTION SYNTAX
+===============
+ doCompleteReminderFromID("My To Do List", theReminderID)
+
+RESULT
+======
+ nil unless error ¬
+ 	then will be missing value
+  
+PARAMATERS
+==========
+	theReminderListStr as text¬
+		TheReminderID as text
+
+
+doCreateNewReminder(theReminderListStr, theNewReminder)
+action (verb) create a new reminder
+
+FUNCTION SYNTAX
+===============
+ doCreateNewReminder("My To Do List", myAppointmentList)
+
+RESULT
+======
+ nil unless error ¬
+ 	then will be missing value
+  
+PARAMATERS
+==========
+	theReminderListStr as string¬
+		theNewReminder as list ¬
+			[1] theAllDayDueDate
+			[2] theDueDate
+			[3] theReminderFlag
+			[4] theAppointmentName
+			[5] thePriority
+			[6] theRemindMeDate
+
+
 getReminderBodyFromID(theReminderListStr, theReminderID)
 action (verb) get a list of properties
 
@@ -90,6 +132,81 @@ PARAMATERS
 use AppleScript version "2.7"
 use scripting additions
 use myLib : script "StephensLib"
+
+on doCreateNewReminder(theReminderListStr, theNewReminder)
+	-- Declare local variables
+	local theReminderList
+	local theReminderFlag
+	local theAppointmentName
+	local theAllDayDueDate
+	local theDueDate
+	local theReminderFlag
+	local thePriority
+	local theRemindMeDate
+	-- Initialise the variables
+	set theReminderList to missing value
+	set theReminderFlag to missing value
+	set theAppointmentName to missing value
+	set theAllDayDueDate to missing value
+	set theDueDate to missing value
+	set theReminderFlag to missing value
+	set thePriority to missing value
+	set theRemindMeDate to missing value
+	
+	try
+		copy item 1 of theNewReminder to theAllDayDueDate
+		copy item 2 of theNewReminder to theDueDate
+		copy item 3 of theNewReminder to theReminderFlag
+		copy item 4 of theNewReminder to theAppointmentName
+		copy item 5 of theNewReminder to thePriority
+		copy item 6 of theNewReminder to theRemindMeDate
+		
+		tell application "Reminders"
+			set theReminderList to list theReminderListStr
+			tell theReminderList
+				-- create an new reminder
+				set newReminder to make new reminder
+				tell newReminder
+					-- assign the values of the old appointment to the new appointment
+					if theAppointmentName is not missing value then
+						set name to theAppointmentName
+					end if
+					if theAllDayDueDate is not missing value then
+						set allday due date to theAllDayDueDate
+					end if
+					if theDueDate is not missing value then
+						set due date to theDueDate
+					end if
+					if theReminderFlag is not missing value then
+						set flagged to theReminderFlag
+					end if
+					if thePriority is not missing value then
+						set priority to thePriority
+					end if
+					if theRemindMeDate is not missing value then
+						set remind me date to theRemindMeDate
+					end if
+				end tell
+			end tell
+		end tell
+	on error
+		return missing value
+	end try
+end doCreateNewReminder
+
+on doCompleteReminderFromID(theReminderListStr, theReminderID)
+	try
+		tell application "Reminders"
+			set theReminderList to list theReminderListStr
+			tell theReminderList
+				-- mark the Reminder Complete 
+				set the completed of reminder id theReminderID to true
+			end tell
+		end tell
+	on error
+		return missing value
+	end try
+end doCompleteReminderFromID
 
 
 on getReminderBodyFromID(theReminderListStr, theReminderID)

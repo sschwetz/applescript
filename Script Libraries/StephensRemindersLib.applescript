@@ -56,9 +56,38 @@ PARAMATERS
 
 use AppleScript version "2.7"
 use scripting additions
-use MarksLib : script "MarksLib"
+use myLib : script "StephensLib"
 
 
+on getReminderfromID(theReminderListStr, theReminderID)
+	-- define variable
+	local theReminderValues
+	-- initialise variables
+	set the the ReminderValues to {}
+	--	try
+	tell application "Reminders"
+		set the aReminderList to list theReminderListStr
+		tell aReminderList
+			tell its reminder id theReminderID
+				copy its allday due date to the end of ReminderValues
+				copy its body to the end of ReminderValues
+				copy its completed to the end of ReminderValues
+				copy its completion date to the end of ReminderValues
+				copy its creation date to the end of ReminderValues
+				copy its due date to the end of ReminderValues
+				copy its flagged to the end of ReminderValues
+				copy theReminderID to the end of ReminderValues
+				copy its modification date to the end of ReminderValues
+				copy its name to the end of ReminderValues
+				copy its priority to the end of ReminderValues
+				copy its remind me date to the end of ReminderValues
+			end tell
+		end tell
+	end tell
+	--	on error
+	--		return missing value
+	--	end try
+end getReminderfromID
 
 -- get a list of reminder's objects ID
 on getRemindersID(theList as text, theCompletionStartDate as date, theCompletionEndDate as date, isCompleted as text)

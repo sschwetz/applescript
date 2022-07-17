@@ -5,29 +5,84 @@
 --	Copyright © 2022 Stephen Schwetz, All Rights Reserved
 --
 
+(*
+Handlers
+========
+
+on getRemindersID(theList, theCompletionStartDate, theCompletionEndDate, isCompleted as string) 
+action (verb) Show all reminders or the given list
+
+FUNCTION SYNTAX
+===============
+set theResult to getRemindersID
+
+RESULT
+======
+list
+
+PARAMATERS
+==========
+ theList as text (required)
+ isCompleted as Text¬
+ 	- "completed" 		- show completed reminders
+	- "not completed" - show completed reminders
+	- ""							- show all reminders
+ theCompletionStartDate as date	(required if is completed is selected)
+ theCompletionEndDate as date 		(required if is completed is selected)
+
+getRemindersHTML(theSearchList, theCompletionStartDate, theCompletionEndDate, isCompleted as boolean)
+action (verb) Show all reminders or the given list
+
+FUNCTION SYNTAX
+===============
+set theHtml to getRemindersHTML
+
+RESULT
+======
+text
+
+PARAMATERS
+==========
+ theList as text (required)
+ isCompleted as Text¬
+ 	- "completed" 		- show completed reminders
+	- "not completed" - show completed reminders
+	- ""							- show all reminders
+ theCompletionStartDate as date 	(required if is completed is selected)
+ theCompletionEndDate as date 		(required if is completed is selected)
+
+*)
+
+
 use AppleScript version "2.7"
 use scripting additions
-
 use MarksLib : script "MarksLib"
 
-on getReminders(theList, theCompletionStartDate, theCompletionEndDate, theSearchType as string)
+
+
+-- get a list of reminder's objects ID
+on getRemindersID(theList as text, theCompletionStartDate as date, theCompletionEndDate as date, isCompleted as text)
 	-- declare local variables
 	local theReminderList
 	local theReminders
+	local aReminder
+	local theRemindersID
 	
 	--intialise variables
 	set theReminderList to missing value as list
 	set theReminders to missing value as list
+	set aReminder to missing value
+	set theRemindersID to missing value as list
 	
 	-- Get the list of completed Reminders
 	try
 		tell application "Reminders"
 			set theReminderList to list theList
 			tell theReminderList
-				if myLib's toLowerCase(theSearchType) is "completed" then
+				if MarksLib's toLowerCase(isCompleted) is "completed" then
 					-- get the completed reminders
 					set the theReminders to (every reminder whose completed is true and completion date ≥ theCompletionStartDate and completion date ≤ theCompletionEndDate)
-				else if myLib's toLowerCase(theSearchType) is "not completed" then
+				else if MarksLib's toLowerCase(isCompleted) is "not completed" then
 					-- get the incomplete reminders
 					set the theReminders to (every reminder whose completed is false)
 				else
@@ -36,11 +91,16 @@ on getReminders(theList, theCompletionStartDate, theCompletionEndDate, theSearch
 				end if
 			end tell
 		end tell
-		return theReminders
+		-- for each reminder
+		repeat with aReminder in theReminders
+			-- copy the id of the reminder to the theRemindersID
+			copy the id of aReminder to the end of theRemindersID
+		end repeat
+		return theRemindersID
 	on error
 		return missing value
 	end try
-end getReminders
+end getRemindersID
 
 on getRemindersHTML(theSearchList, theCompletionStartDate, theCompletionEndDate, isCompleted as boolean)
 	-- Declare variables

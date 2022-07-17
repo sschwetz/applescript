@@ -2,7 +2,7 @@
 --	Created by: Stephen Schwetz
 --	Created on: 13/07/22
 --
---	Copyright Â© 2022 Stephen Schwetz, All Rights Reserved
+--	Copyright © 2022 Stephen Schwetz, All Rights Reserved
 --
 
 use AppleScript version "2.7"
